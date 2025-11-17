@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load menu_extras %}
+{% block content %}
+<div class="checkout-page">
+<div class="row">
+  <div class="col-lg-8">
+    <h3 class="mb-1">Checkout</h3>
+    <p class="text-secondary mb-3">Review your items and place the order.</p>
+
+    <div class="list-group mb-3">
+      {% for item in cart.items %}
+      <div class="list-group-item d-flex gap-3 align-items-center">
+        <div class="flex-grow-1">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <strong>{{ item.dish.name }}</strong>
+              <div class="text-muted small">{{ item.dish.description|truncatechars:90 }}</div>
+            </div>
+            <div class="text-end">
+              <div class="price">{{ item.unit_price|inr }}</div>
+              <div class="small text-secondary">Qty {{ item.quantity }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="card p-3">Your cart is empty.</div>
+      {% endfor %}
+    </div>
+
+    <form method="post" id="order-form">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label small">Delivery pincode</label>
+        <input type="text" name="pincode" id="pincode-input" class="form-control form-control-sm" value="{{ request.session.pincode }}">
+      </div>
+      <div class="d-flex justify-content-between align-items-center">
+        {% url 'menu:cart' as cart_url %}
+        <a id="back-to-cart" class="btn btn-outline-secondary" href="{{ request.META.HTTP_REFERER|default:cart_url }}">← Back to Cart</a>
+        <button type="submit" class="btn btn-success">Place Order</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card cart-summary sticky-cart p-3">
+      <h5 class="mb-3">Order Summary</h5>
+      <div class="d-flex justify-content-between mb-2"><div>Items total</div><div id="checkout-items-total">{{ cart.total|inr }}</div></div>
+      {% if request.session.delivery_fee is not None%}
+      <div class="d-flex justify-content-between mb-2"><div>Delivery fee</div><div>₹{{ request.session.delivery_fee }}</div></div>
+      {% endif %}
+      <hr>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="h5 mb-0">Total</div>
+        <div class="h5 mb-0" id="checkout-grand-total">{{ total_with_delivery|inr }}</div>
+      </div>
+      <a href="{% url 'menu:menu_list' %}" class="btn btn-outline-secondary w-100 mb-2">Continue shopping</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    var btn = document.getElementById('back-to-cart');
+    if(!btn) return;
+    btn.addEventListener('click', function(e){
+      e.preventDefault();
+      try{
+        if(document.referrer && document.referrer !== window.location.href){
+          window.location.href = document.referrer;
+        } else {
+          history.back();
+        }
+      }catch(err){
+        window.location.href = btn.getAttribute('href');
+      }
+    });
+  })();
+</script>
+
+<script>
+document.getElementById("pincode-input").addEventListener("change", function () {
+    const pincode = this.value;
+
+    fetch("{% url 'menu:set_pincode' %}", {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": "{{ csrf_token }}",
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "pincode=" + encodeURIComponent(pincode)
+    });
+});
+</script>
+
+</div>
+{% endblock %}
+
+

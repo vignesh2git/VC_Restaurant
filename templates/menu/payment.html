@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% load menu_extras %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h3 class="mb-1">💳 Payment</h3>
+        <p class="text-secondary mb-4">Complete your order payment</p>
+        
+<!-- Payment Order Summary  -->
+<div class="payment-summary-container mb-4 shadow-sm rounded">
+
+    
+    <div class="summary-header p-3 d-flex justify-content-between align-items-center">
+        <h5 class="m-0 fw-bold text-white">🧾 Order #{{ order.id }}</h5>
+        <span class="badge bg-warning text-dark px-3 py-2">Order Summary</span>
+    </div>
+
+    
+    <div class="summary-body p-3">
+
+        <div class="order-items">
+            {% for item in order.items.all %}
+            <div class="item-card d-flex justify-content-between align-items-center mb-3 p-2 rounded">
+                <div>
+                    <strong class="item-name">{{ item.dish.name }}</strong>
+                    <div class="small text-muted">Qty: {{ item.quantity }}</div>
+                </div>
+                <span class="item-price fw-medium"><strong>{{ item.subtotal|inr }}</strong></span>
+            </div>
+            {% endfor %}
+        </div>
+
+        <hr class="divider my-3">
+
+        <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Items Total</span>
+            <span class="fw-medium">
+              <strong>{{ items_total|inr }}</strong>
+            </span>
+        </div>
+
+        {% if order.delivery_fee %}
+        <div class="d-flex justify-content-between mb-2">
+            <span class="text-muted">Delivery Fee</span>
+            <strong><span class="fw-medium">₹{{ order.delivery_fee }}</span></strong>
+        </div>
+        {% endif %}
+
+        <div class="d-flex justify-content-between align-items-center total-row mt-3 pt-3">
+            <strong class="fs-5">Total Amount</strong>
+            <strong class="fs-5 text-primary">{{ order.total_price|inr }}</strong>
+        </div>
+
+    </div>
+</div>
+
+        
+        <!-- Payment Method -->
+        <div class="mb-4">
+          <label class="form-label fw-bold">Payment Method</label>
+          <div class="list-group">
+            <label class="list-group-item">
+              <input class="form-check-input me-2" type="radio" name="payment_method" value="card" checked>
+              Credit/Debit Card
+            </label>
+            <label class="list-group-item">
+              <input class="form-check-input me-2" type="radio" name="payment_method" value="upi">
+              UPI
+            </label>
+            <label class="list-group-item">
+              <input class="form-check-input me-2" type="radio" name="payment_method" value="wallet">
+              Digital Wallet
+            </label>
+          </div>
+        </div>
+
+        <!-- Payment Form -->
+        <!-- CARD FORM -->
+        <div id="card-form" class="payment-section">
+          <form method="post" class="needs-validation">
+            {% csrf_token %}
+
+            <div class="mb-3">
+              <label class="form-label">Cardholder Name</label>
+              <input type="text" class="form-control" placeholder="John Doe" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Card Number</label>
+              <input type="text" class="form-control" placeholder="1234 5678 9012 3456" maxlength="19" required>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label class="form-label">Expiry Date</label>
+                <input type="text" class="form-control" placeholder="MM/YY" maxlength="5" required>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label class="form-label">CVV</label>
+                <input type="text" class="form-control" placeholder="123" maxlength="4" required>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 mb-2">
+              <i class="bi bi-lock-fill me-2"></i>Pay {{ order.total_price|inr }}
+            </button>
+
+            <a href="{% url 'menu:order_summary' order.id %}" class="btn btn-outline-secondary w-100">
+              Cancel
+            </a>
+          </form>
+        </div>
+
+
+        <!-- UPI FORM -->
+        <div id="upi-form" class="payment-section d-none">
+          <form method="post" class="needs-validation">
+            {% csrf_token %}
+
+            <div class="mb-3">
+              <label class="form-label">Enter UPI ID</label>
+              <input type="text" class="form-control" placeholder="example@upi" required>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 mb-2">
+              <i class="bi bi-lock-fill me-2"></i>Pay with UPI {{ order.total_price|inr }}
+            </button>
+
+            <a href="{% url 'menu:order_summary' order.id %}" class="btn btn-outline-secondary w-100">
+              Cancel
+            </a>
+          </form>
+        </div>
+
+
+        <!-- WALLET FORM -->
+        <div id="wallet-form" class="payment-section d-none">
+          <form method="post" class="needs-validation">
+            {% csrf_token %}
+
+            <div class="mb-3">
+              <label class="form-label">Select Wallet</label>
+              <select class="form-select" required>
+                <option value="">Choose Wallet</option>
+                <option>Google Pay</option>
+                <option>PhonePe</option>
+                <option>Paytm</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 mb-2">
+              <i class="bi bi-lock-fill me-2"></i>Pay {{ order.total_price|inr }}
+            </button>
+
+            <a href="{% url 'menu:order_summary' order.id %}" class="btn btn-outline-secondary w-100">
+              Cancel
+            </a>
+          </form>
+        </div>
+
+
+        <div class="alert alert-info mt-4 small">
+          <i class="bi bi-info-circle me-2"></i>
+          <strong>Demo Mode:</strong> This is a test payment. Use any card details to simulate payment.
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- FORM SWITCHING JS -->
+<script>
+document.querySelectorAll("input[name='payment_method']").forEach(radio => {
+    radio.addEventListener("change", function() {
+
+        document.querySelectorAll(".payment-section").forEach(section =>
+            section.classList.add("d-none")
+        );
+
+        document.querySelector(`#${this.value}-form`).classList.remove("d-none");
+    });
+});
+</script>
+
+
+        {% comment %} <div class="alert alert-info mt-4 small">
+          <i class="bi bi-info-circle me-2"></i>
+          <strong>Demo Mode:</strong> This is a test payment. Use any card details to simulate payment.
+        </div> {% endcomment %}
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+

@@ -1,0 +1,155 @@
+/* Light and dark theme variables */
+:root {
+  --bg: #ffffff;
+  --fg: #111111;
+  --muted: #6c757d;
+  --border: #dee2e6;
+  --surface: #ffffff;
+  --surface-alt: #f8f9fa;
+  --link: #0d6efd;
+}
+
+html.dark {
+  --bg: #0b0f14;
+  --fg: #e6e9ef;
+  --muted: #9aa4af;
+  --border: #2a2f36;
+  --surface: #11161c;
+  --surface-alt: #0e1319;
+  --link: #66a6ff;
+}
+
+html, body {
+  background-color: var(--bg);
+  color: var(--fg);
+}
+
+.border,
+.card,
+.list-group-item,
+.modal-content,
+.dropdown-menu {
+  border-color: var(--border);
+}
+
+.card,
+.modal-content,
+.dropdown-menu,
+.offcanvas,
+.navbar,
+.list-group-item {
+  background-color: var(--surface);
+  color: var(--fg);
+}
+
+.text-muted,
+.text-secondary {
+  color: var(--muted) !important;
+}
+
+a { color: var(--link); }
+
+.hero {
+  background-color: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: .5rem;
+  padding: 1rem;
+}
+
+/* Keep navbar items readable and unchanged when toggling */
+html.dark .navbar .nav-link,
+html.dark .navbar .nav-link:active,
+html.dark .navbar .nav-link:focus {
+  color: #0f1724 !important; /* keep same as light */
+}
+html.dark .navbar .nav-link:hover,
+html.dark .navbar .nav-link:focus {
+  color: var(--primary) !important;
+}
+html.dark .navbar .navbar-brand {
+  color: var(--primary) !important;
+}
+
+/* Keep dropdown menu text color same in dark mode */
+html.dark .dropdown-menu,
+html.dark .dropdown-item {
+  color: #0f1724 !important;
+}
+
+/* Exception: account dropdown (dropdown-menu-end) should be white text in dark mode */
+html.dark .dropdown-menu.dropdown-menu-end .dropdown-item {
+  color: #ffffff !important;
+}
+html.dark .dropdown-menu.dropdown-menu-end .dropdown-item:hover,
+html.dark .dropdown-menu.dropdown-menu-end .dropdown-item:focus {
+  color: #ffffff !important;
+}
+
+/* Keep hero title the same color when dark */
+html.dark .hero .h3.mb-1 {
+  color: #111827 !important;
+}
+
+/* Theme toggle button without border/background */
+#theme-toggle {
+  border: 0 !important;
+  background: transparent !important;
+}
+#theme-toggle:hover,#theme-toggle:focus {
+  background: rgba(0,0,0,0.05) !important;
+  border: 0 !important;
+}
+
+/* Keep input background and text color unchanged across themes (global) */
+.form-control {
+  background: #ffffff !important;
+  color: #0f1724 !important;
+}
+
+/* Exception: on checkout page, allow dark inputs in dark mode for contrast */
+html.dark .checkout-page .form-control {
+  background: #11161c !important;
+  color: #e6e9ef !important;
+  border-color: var(--border) !important;
+}
+
+/* Keep placeholder color stable */
+.form-control::placeholder {
+  color: #6b7280 !important; /* matches --muted in light theme */
+  opacity: 1;
+}
+html.dark .checkout-page .form-control::placeholder {
+  color: #9aa4af !important; /* matches dark --muted */
+}
+
+/* Do not change input border color in dark mode (global) */
+html.dark .form-control {
+  border-color: #ced4da !important; /* Bootstrap default light border */
+}
+/* Checkout page: allow darker border in dark mode */
+html.dark .checkout-page .form-control {
+  border-color: var(--border) !important;
+}
+
+/* Active indicator in dark mode */
+html.dark #foodAdCarousel .carousel-indicators .active {
+  background-color: #b1afaf;                   /* Dark mode active color */
+}
+
+
+
+/* Light mode (default) */
+.order-summary {
+    background-color: #f8f9fa;   /* light grey */
+    color: #212529;              /* dark text */
+}
+
+/* Dark mode */
+html[data-bs-theme="dark"] .order-summary {
+    background-color: #232323 !important;   /* dark background */
+    color: #e4e4e4 !important;              /* light text */
+}
+
+html[data-bs-theme="dark"] .order-summary hr {
+    border-color: #444 !important;
+}

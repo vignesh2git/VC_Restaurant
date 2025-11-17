@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load menu_extras %}
+{% block content %}
+<h3>My Favourites</h3>
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-4">
+  {% for dish in dishes %}
+  <div class="col">
+    <div class="card h-100 position-relative">
+      <a class="wishlist text-decoration-none active" href="{% url 'menu:wishlist_toggle' dish.id %}">❤</a>
+      <img src="{{ dish.image_url }}" class="card-img-top dish-img" alt="{{ dish.name }}" referrerpolicy="no-referrer" loading="lazy" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=60';">
+      <div class="card-body">
+        <h5 class="card-title">{{ dish.name }}</h5>
+        <p class="card-text text-secondary">{{ dish.description|truncatewords:18 }}</p>
+        <div class="d-flex align-items-center justify-content-between">
+          <div class="price">{{ dish.price|inr }}</div>
+          <a class="btn btn-sm btn-primary add-to-cart" href="{% url 'menu:cart_add' dish.id %}">Add to Cart</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <p>No favourites yet.</p>
+  {% endfor %}
+</div>
+{% endblock %}
+
+

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load menu_extras %}
+{% block content %}
+<div class="row">
+  <div class="col-12 mb-3">
+    <h3 class="mb-0">Your Cart</h3>
+    <p class="text-secondary small mb-0">Review items and proceed to checkout</p>
+  </div>
+
+  <div class="col-lg-8">
+    {% if cart.items %}
+      <div class="list-group">
+        {% for item in cart.items %}
+        <div class="list-group-item cart-item-card d-flex gap-3 align-items-start" data-dish-id="{{ item.dish.id }}">
+          <img src="{{ item.dish.image_url }}" alt="{{ item.dish.name }}" class="rounded" style="width:96px;height:72px;object-fit:cover;flex:0 0 96px;" referrerpolicy="no-referrer" loading="lazy" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=60';">
+          <div class="flex-grow-1">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h5 class="mb-1">{{ item.dish.name }}</h5>
+                <div class="text-secondary small">{{ item.dish.description|truncatechars:100 }}</div>
+              </div>
+              <div class="text-end">
+                <div class="price mb-1">{{ item.unit_price|inr }}</div>
+                <a class="btn btn-sm btn-outline-danger cart-remove" href="{% url 'menu:cart_remove' item.dish.id %}">Remove</a>
+              </div>
+            </div>
+            <div class="d-flex align-items-center justify-content-between mt-2">
+              <div class="qty-controls">
+                <a class="btn btn-sm btn-outline-secondary me-2 cart-decrement" href="{% url 'menu:cart_decrement' item.dish.id %}">−</a>
+                <span class="fw-bold item-quantity" id="qty-{{ item.dish.id }}">{{ item.quantity }}</span>
+                <a class="btn btn-sm btn-primary ms-2 add-to-cart" href="{% url 'menu:cart_add' item.dish.id %}">+</a>
+              </div>
+              <div class="text-muted">Subtotal: <strong class="item-subtotal" id="subtotal-{{ item.dish.id }}">{{ item.subtotal|inr }}</strong></div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="card p-4 text-center cart-empty">
+        <p class="mb-0">Your cart is empty. Browse the <a href="{% url 'menu:menu_list' %}">menu</a> to add delicious meals.</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="col-lg-4">
+      <div class="card cart-summary sticky-cart p-3">
+      <h5 class="mb-3">Order Summary</h5>
+      <div class="d-flex justify-content-between mb-2"><div>Items total</div><div id="cart-total">{{ cart.total|inr }}</div></div>
+      {% if request.session.delivery_fee is not None %}
+      <div class="d-flex justify-content-between mb-2"><div>Delivery fee</div><div>₹{{ request.session.delivery_fee }}</div></div>
+      {% endif %}
+      <hr>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="h5 mb-0">Total</div>
+        <div class="h5 mb-0" id="cart-total-dup">{{ total_with_delivery|floatformat:2|inr }}</div>
+      </div>
+      <a class="btn btn-success w-100 mb-2" href="{% url 'menu:checkout' %}">Proceed to Checkout</a>
+      <a class="btn btn-outline-secondary w-100" href="{% url 'menu:menu_list' %}">Continue Shopping</a>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
+
+

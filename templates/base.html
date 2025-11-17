@@ -1,0 +1,318 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    
+    <script>
+    (function () {
+      try {
+        var storageKey = 'theme';
+        var stored = localStorage.getItem(storageKey);
+        var systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = stored || (systemPrefersDark ? 'dark' : 'light');
+        var html = document.documentElement;
+        if (theme === 'dark') {
+          html.classList.add('dark');
+          html.setAttribute('data-bs-theme', 'dark');
+        } else {
+          html.classList.remove('dark');
+          html.setAttribute('data-bs-theme', 'light');
+        }
+      } catch (e) { }
+    })();
+    </script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>VC Restaurant</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="{% static 'css/site.css' %}" rel="stylesheet">
+    <link href="{% static 'css/theme.css' %}" rel="stylesheet">
+    <link rel="shortcut icon" href="{% static  'image/brand.jpg'%}" type="image/x-icon">
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg bg-white fixed-top">
+      <div class="container">
+  <a class="navbar-brand" href="/">VC Restaurant</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsMain">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarsMain">
+          <form class="d-flex ms-auto" method="get" action="/">
+            <input class="form-control me-2" type="search" placeholder="Search" name="q">
+            <button class="btn btn-primary" type="submit">Search</button>
+          </form>
+          <ul class="navbar-nav ms-3">
+            <li class="nav-item"><a class="nav-link" href="/wishlist/"><i class="bi bi-heart me-1"></i>Favourites</a></li>
+            {% if user.is_authenticated %}
+              <li class="nav-item"><a class="nav-link" href="/orders/"><i class="bi bi-receipt me-1"></i>Orders</a></li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="accountDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  {{ user.username }}
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="accountDropdown">
+                  <li>
+                    <form method="post" action="{% url 'logout' %}" class="m-0">
+                      {% csrf_token %}
+                      <button type="submit" class="dropdown-item logout-item">Logout</button>
+                    </form>
+                  </li>
+                </ul>
+              </li>
+            {% else %}
+              <li class="nav-item">
+                <a class="nav-link" href="/accounts/login/"><i class="bi bi-box-arrow-in-right me-1"></i>Login</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/accounts/signup/"><i class="bi bi-person-plus me-1"></i>Sign up</a>
+              </li>
+            {% endif %}
+            <li class="nav-item position-relative">
+              <a id="nav-cart-link" class="nav-link" href="/cart/"><i class="bi bi-cart me-1"></i>Cart
+                {% if cart_count %}
+                <span id="cart-count" class="badge text-bg-success ms-1">{{ cart_count }}</span>
+                {% endif %}
+              </a>
+            </li>
+            <li class="nav-item ms-2 d-flex align-items-center">
+              <button id="theme-toggle" class="btn btn-outline-secondary btn-sm my-0 py-0" type="button" aria-label="Toggle theme">
+                <span class="theme-sun">☀️</span>
+                <span class="theme-moon d-none">🌙</span>
+              </button>
+            </li>
+            
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+  <div class="page-wrapper d-flex flex-column min-vh-100">
+
+    <main class="flex-grow-1">
+
+    <div class="container mt-5">
+      <div class="hero mb-4">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <h1 class="h3 mb-1">Delicious meals, delivered fast</h1>
+            <p class="text-secondary mb-0">Browse the menu and add your favorites to the cart.</p>
+          </div>
+          <div class="text-end">
+            <form class="d-inline-block" method="post" action="{% url 'menu:set_pincode' %}">
+              {% csrf_token %}
+              <div class="input-group input-group-sm">
+                <input type="text" class="form-control" name="pincode" placeholder="Enter pincode" value="{{ request.session.pincode }}">
+                <button class="btn btn-outline-secondary" type="submit">Set</button>
+              </div>
+            </form>
+            <div class="small text-secondary mt-1">
+              {% if request.session.eta %}ETA {{ request.session.eta }}{% endif %}
+              {% if request.session.delivery_fee %} • Fee ₹{{ request.session.delivery_fee }}{% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} auto-dismiss" role="alert">{{ message }}</div>
+      {% endfor %}
+      {% block content %}{% endblock %}
+    </div>
+    </main>
+  <footer class="footer-vc mt-5 text-dark">
+  <!-- Bottom Bar -->
+  <div class="footer-bottom py-3 text-center">
+    <div class="container small text-secondary">
+      © {% now 'Y' %} VC Restaurant. All rights reserved.
+    </div>
+  </div>
+</footer>
+
+  </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/theme.js' %}"></script>
+    <script>
+
+      // Add-to-cart handler: intercept clicks on anchors with .add-to-cart and do AJAX
+      (function(){
+        document.addEventListener('click', function(e){
+          var a = e.target.closest && e.target.closest('a.add-to-cart');
+          if(!a) return;
+          e.preventDefault();
+          fetch(a.href, { method: 'GET', credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function(resp){ return resp.json(); })
+            .then(function(data){
+              if(!data || data.status !== 'ok'){
+                window.location = a.href;
+                return;
+              }
+              // update cart count badge
+              try{
+                var cartCount = parseInt(data.cart_count || 0, 10);
+                var badge = document.getElementById('cart-count');
+                if(cartCount > 0){
+                  if(badge){ badge.textContent = cartCount; }
+                  else {
+                    var span = document.createElement('span');
+                    span.id = 'cart-count';
+                    span.className = 'badge text-bg-success ms-1';
+                    span.textContent = cartCount;
+                    var cartLink = document.getElementById('nav-cart-link');
+                    if(cartLink) cartLink.appendChild(span);
+                  }
+                }
+              }catch(e){}
+              // If response includes dish info, update item quantity/subtotal and totals (useful on cart page)
+              try{
+                if(data.dish_id){
+                  var did = data.dish_id;
+                  var qEl = document.getElementById('qty-'+did);
+                  if(qEl && typeof data.item_quantity !== 'undefined') qEl.textContent = data.item_quantity;
+                  var sEl = document.getElementById('subtotal-'+did);
+                  if(sEl && typeof data.item_subtotal !== 'undefined') sEl.textContent = data.item_subtotal;
+                  var totalEl = document.getElementById('cart-total');
+                  var totalDup = document.getElementById('cart-total-dup');
+                  if(totalEl && typeof data.cart_total !== 'undefined') totalEl.textContent = data.cart_total;
+                  if(totalDup && typeof data.cart_total !== 'undefined') totalDup.textContent = data.cart_total;
+                  // if item was newly added and quantity is 1 — ensure the card exists; if not, we could reload or leave it
+                }
+              }catch(e){}
+              // show transient message if provided
+              if(data.message){
+                var t2 = document.createElement('div');
+                t2.className = 'ajax-toast success';
+                t2.textContent = data.message;
+                document.body.appendChild(t2);
+                t2.offsetHeight;
+                t2.classList.add('show');
+                setTimeout(function(){ t2.classList.remove('show'); setTimeout(function(){ t2.remove(); }, 300); }, 1800);
+              }
+            })
+            .catch(function(){ window.location = a.href; });
+        }, false);
+      })();
+
+      // Wishlist toggle: intercept clicks on anchors with .wishlist and do AJAX
+      (function(){
+        document.addEventListener('click', function(e){
+          var a = e.target.closest && e.target.closest('a.wishlist');
+          if(!a) return;
+          e.preventDefault();
+          // send request
+          fetch(a.href, { method: 'GET', credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function(resp){ return resp.json(); })
+            .then(function(data){
+              if(!data || data.status !== 'ok'){
+                // fallback to full navigation
+                window.location = a.href;
+                return;
+              }
+              if(data.action === 'added'){
+                a.classList.add('active');
+              } else if(data.action === 'removed'){
+                a.classList.remove('active');
+              }
+              // show transient message if provided
+              if(data.message){
+                var t = document.createElement('div');
+                // mark wishlist toast specially so it stays black with white text
+                t.className = 'ajax-toast wishlist-toast';
+                t.textContent = data.message;
+                document.body.appendChild(t);
+                // force reflow for CSS transition
+                /* eslint-disable no-unused-expressions */
+                t.offsetHeight;
+                // show immediately, then auto-hide after 1.8s
+                t.classList.add('show');
+                setTimeout(function(){ t.classList.remove('show'); setTimeout(function(){ t.remove(); }, 300); }, 1800);
+              }
+            })
+            .catch(function(){
+              // network or JSON error: fallback to original navigation
+              window.location = a.href;
+            });
+        }, false);
+      })();
+
+      // Cart controls: intercept remove and decrement actions on cart page
+      (function(){
+        document.addEventListener('click', function(e){
+          var rem = e.target.closest && e.target.closest('a.cart-remove');
+          var dec = e.target.closest && e.target.closest('a.cart-decrement');
+          if(!rem && !dec) return;
+          e.preventDefault();
+          var a = rem || dec;
+          fetch(a.href, { method: 'GET', credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function(resp){ return resp.json(); })
+            .then(function(data){
+              if(!data || data.status !== 'ok'){
+                window.location = a.href; return;
+              }
+              // update cart count
+              try{
+                var cartCount = parseInt(data.cart_count || 0, 10);
+                var badge = document.getElementById('cart-count');
+                if(cartCount > 0){ if(badge) badge.textContent = cartCount; }
+                else if(badge){ badge.remove(); }
+              }catch(e){}
+
+              // update item qty/subtotal or remove item card
+              try{
+                var dishId = data.dish_id;
+                var itemQty = parseInt(data.item_quantity || 0, 10);
+                var itemSubtotal = data.item_subtotal || '0.00';
+                var card = document.querySelector('[data-dish-id="'+dishId+'"]');
+                if(itemQty > 0){
+                  var qEl = document.getElementById('qty-'+dishId);
+                  if(qEl) qEl.textContent = itemQty;
+                  var sEl = document.getElementById('subtotal-'+dishId);
+                  if(sEl) sEl.textContent = itemSubtotal;
+                } else {
+                  if(card && card.parentNode) card.parentNode.removeChild(card);
+                }
+                // update cart totals
+                var totalEl = document.getElementById('cart-total');
+                var totalDup = document.getElementById('cart-total-dup');
+                if(totalEl) totalEl.textContent = data.cart_total;
+                if(totalDup) totalDup.textContent = data.cart_total;
+              }catch(e){}
+
+              // show transient message
+              if(data.message){
+                var t3 = document.createElement('div');
+                t3.className = 'ajax-toast info';
+                t3.textContent = data.message;
+                document.body.appendChild(t3);
+                t3.offsetHeight; t3.classList.add('show');
+                setTimeout(function(){ t3.classList.remove('show'); setTimeout(function(){ t3.remove(); }, 300); }, 1500);
+              }
+            })
+            .catch(function(){ window.location = a.href; });
+        }, false);
+      })();
+
+      // Server-rendered alerts will remain inline (no popups)
+      // Auto-dismiss inline alerts: fade and remove after a delay
+      (function(){
+        try{
+          var AUTO_DISMISS_DELAY = 3000; // ms the message stays visible before hiding
+          var alerts = Array.prototype.slice.call(document.querySelectorAll('.alert.auto-dismiss'));
+          alerts.forEach(function(a){
+            // ensure shown state
+            a.classList.remove('hide');
+            // schedule hide
+            setTimeout(function(){
+              a.classList.add('hide');
+              // remove from DOM after transition
+              setTimeout(function(){ if(a && a.parentNode){ a.parentNode.removeChild(a); } }, 360);
+            }, AUTO_DISMISS_DELAY);
+          });
+        }catch(e){ /* ignore in older browsers */ }
+      })();
+    </script>
+  </body>
+  </html>
+
+

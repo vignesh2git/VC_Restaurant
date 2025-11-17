@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load menu_extras %}
+{% block content %}
+<h3>Order #{{ order.user_order_no|default:order.id }}</h3>
+<p>Status: {{ order.get_status_display }}</p>
+<table class="table">
+  <thead><tr><th>Dish</th><th>Qty</th><th>Unit Price</th><th>Subtotal</th></tr></thead>
+  <tbody>
+  {% for item in order.items.all %}
+  <tr>
+    <td>{{ item.dish.name }}</td>
+    <td>{{ item.quantity }}</td>
+    <td>{{ item.unit_price|inr }}</td>
+    <td>{{ item.subtotal|inr }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<div class="d-flex justify-content-between">
+  <div>Items total</div>
+  <div>{{ items_total|inr }}</div>
+</div>
+{% if order.delivery_fee %}
+<div class="d-flex justify-content-between">
+  <div>Delivery Fee</div>
+  <div>₹{{ order.delivery_fee }}</div>
+</div>
+{% endif %}
+<p class="fw-bold">Total: {{ order.total_price|inr }}</p>
+
+{% if order.status == 'created' %}
+  <a href="{% url 'menu:pay_order' order.id %}" class="btn btn-success me-2">Pay Order</a>
+{% endif %}
+
+<a href="/" class="btn btn-primary">Continue Shopping</a>
+{% endblock %}
+
+

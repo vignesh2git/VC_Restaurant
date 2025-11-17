@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load menu_extras %}
+{% block content %}
+<div class="row">
+  <div class="col-md-6">
+    <img src="{{ dish.image_url|img_url }}" class="img-fluid" alt="{{ dish.name }}" referrerpolicy="no-referrer" loading="lazy" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=60';">
+  </div>
+  <div class="col-md-6">
+    {% url 'menu:menu_list' as menu_list_url %}
+    <h2>{{ dish.name }}</h2>
+    <div class="mb-3">
+      <p class="mb-1">{{ dish.description }}</p>
+    </div>
+    <p class="fw-bold">{{ dish.price|inr }}</p>
+    <div class="mt-3">
+      <a id="back-btn" class="btn btn-sm btn-outline-secondary me-2" href="{{ request.META.HTTP_REFERER|default:menu_list_url }}">← Back</a>
+      <a class="btn btn-primary add-to-cart" href="{% url 'menu:cart_add' dish.id %}">Add to Cart</a>
+    </div>
+  </div>
+  </div>
+  <script>
+    (function(){
+      var btn = document.getElementById('back-btn');
+      if(!btn) return;
+      btn.addEventListener('click', function(e){
+        // prefer document.referrer for proper back navigation, otherwise use history.back()
+        e.preventDefault();
+        try{
+          if(document.referrer && document.referrer !== window.location.href){
+            window.location.href = document.referrer;
+          } else {
+            history.back();
+          }
+        }catch(err){
+          // fallback to link href
+          window.location.href = btn.getAttribute('href');
+        }
+      });
+    })();
+  </script>
+
+{% endblock %}
+
+
