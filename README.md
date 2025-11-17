@@ -44,7 +44,7 @@ A simple food ordering site built with Django, Bootstrap, and SQLite (MySQL-read
 
 🔗 Live Demo
 ---
-[Live Demo]()
+[Live Demo](https://vc-restaurant-228.onrender.com)
 
 
 
