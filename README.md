@@ -92,7 +92,7 @@ The project uses SQLite for only deployment.
 To use MySQL, review the section below.
 
 
-## Switch to MySQL later
+Switch to MySQL later
 ---
 - Install `mysqlclient`
 - Set environment variables (e.g., in your shell):
