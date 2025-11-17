@@ -88,7 +88,7 @@ Visit `/admin/` for admin, `/accounts/login/` to log in, and `/` for the menu.
 💾 Default Database (SQLite)
 ---
 
-The project uses SQLite during development for simplicity.
+The project uses SQLite for only deployment.
 To use MySQL, review the section below.
 
 
