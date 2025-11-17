@@ -54,13 +54,13 @@ A simple food ordering site built with Django, Bootstrap, and SQLite (MySQL-read
 ---
 Laptop View
 ---
-![Blog web Screenshot](templates/image/laptop_view.png)
+![Restaurant  Screenshot](static/image/laptop_view.png)
 
 
 
 Moblie View
 ---
-![Blog web Screenshot](templates/image/Mobile_view.png)
+![Restaurant  Screenshot](static/image/Mobile_view.png)
 
 
 
